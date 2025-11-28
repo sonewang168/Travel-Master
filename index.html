@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="旅遊達人">
+    <meta name="theme-color" content="#0a0a0f">
+    <title>旅遊達人</title>
+    
+    <link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22%E6%97%85%E9%81%8A%E9%81%94%E4%BA%BA%22%2C%22short_name%22%3A%22%E6%97%85%E9%81%8A%E9%81%94%E4%BA%BA%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230a0a0f%22%2C%22theme_color%22%3A%22%23ff6b35%22%7D">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Righteous&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #14141f;
+            --bg-elevated: #1e1e2e;
+            --bg-glass: rgba(255, 255, 255, 0.03);
+            --orange: #ff6b35;
+            --orange-glow: rgba(255, 107, 53, 0.4);
+            --yellow: #ffd93d;
+            --yellow-glow: rgba(255, 217, 61, 0.3);
+            --cyan: #4ecdc4;
+            --cyan-glow: rgba(78, 205, 196, 0.3);
+            --pink: #ff6b9d;
+            --pink-glow: rgba(255, 107, 157, 0.3);
+            --purple: #a855f7;
+            --green: #10b981;
+            --red: #ef4444;
+            --text-bright: #ffffff;
+            --text-soft: #b8b8c8;
+            --text-muted: #6b6b7b;
+            --border: rgba(255, 255, 255, 0.08);
+            --nav-height: 70px;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; overflow: hidden; touch-action: manipulation; }
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-bright);
+            line-height: 1.6;
+        }
+        
+        /* ===== App Container ===== */
+        .app {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            background: radial-gradient(ellipse at top, #1a1a2e 0%, var(--bg-dark) 70%);
+        }
+        
+        /* ===== Header ===== */
+        .header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--orange) 0%, var(--yellow) 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4em;
+            box-shadow: 0 4px 20px var(--orange-glow);
+        }
+        
+        .logo-text {
+            font-family: 'Righteous', cursive;
+            font-size: 1.5em;
+            background: linear-gradient(135deg, var(--orange) 0%, var(--yellow) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header-btn {
+            width: 44px;
+            height: 44px;
+            border: none;
+            background: var(--bg-glass);
+            border-radius: 12px;
+            color: var(--text-soft);
+            font-size: 1.3em;
+            cursor: pointer;
+            border: 1px solid var(--border);
+        }
+        
+        /* ===== Content ===== */
+        .content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .page {
+            position: absolute;
+            inset: 0;
+            overflow-y: auto;
+            padding: 0 20px 100px;
+            display: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .page.active { display: block; animation: pageIn 0.4s ease; }
+        
+        @keyframes pageIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* ===== Navigation ===== */
+        .nav {
+            height: var(--nav-height);
+            background: rgba(20, 20, 31, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-shrink: 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        
+        .nav::-webkit-scrollbar { display: none; }
+        
+        .nav-item {
+            flex: 1;
+            min-width: 65px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-item.active { color: var(--orange); }
+        
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--orange), var(--yellow));
+            border-radius: 0 0 3px 3px;
+        }
+        
+        .nav-icon { font-size: 1.4em; }
+        .nav-label { font-size: 0.65em; font-weight: 500; }
+        
+        /* ===== Cards ===== */
+        .card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+        }
+        
+        .card-icon.orange { background: var(--orange-glow); }
+        .card-icon.cyan { background: var(--cyan-glow); }
+        .card-icon.pink { background: var(--pink-glow); }
+        .card-icon.yellow { background: var(--yellow-glow); }
+        
+        .card-title { font-size: 1.1em; font-weight: 700; }
+        .card-subtitle { font-size: 0.8em; color: var(--text-muted); }
+        
+        /* ===== Inputs ===== */
+        .input-group { margin-bottom: 14px; }
+        .input-label { display: block; font-size: 0.85em; color: var(--text-soft); margin-bottom: 6px; font-weight: 500; }
+        
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-dark);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-bright);
+            font-size: 1em;
+            font-family: inherit;
+            -webkit-appearance: none;
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--orange);
+            box-shadow: 0 0 20px var(--orange-glow);
+        }
+        
+        .input-field::placeholder { color: var(--text-muted); }
+        
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .input-row .input-field { flex: 1; }
+        
+        .input-btn {
+            width: 50px;
+            height: 50px;
+            border: none;
+            background: linear-gradient(135deg, var(--orange), var(--yellow));
+            border-radius: 12px;
+            color: white;
+            font-size: 1.3em;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        
+        /* ===== Buttons ===== */
+        .btn {
+            width: 100%;
+            padding: 16px 24px;
+            border: none;
+            border-radius: 14px;
+            font-size: 1em;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:active { transform: scale(0.98); }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--orange) 0%, var(--yellow) 100%);
+            color: #000;
+            box-shadow: 0 4px 20px var(--orange-glow);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-elevated);
+            color: var(--text-bright);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--orange);
+            border: 2px solid var(--orange);
+        }
+        
+        .btn-sm { padding: 12px 16px; font-size: 0.9em; }
+        
+        .btn-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        /* ===== Tags ===== */
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .tag {
+            padding: 8px 14px;
+            background: var(--bg-elevated);
+            border-radius: 20px;
+            font-size: 0.85em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--border);
+        }
+        
+        .tag-remove {
+            width: 18px;
+            height: 18px;
+            border: none;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            color: var(--text-muted);
+            font-size: 0.7em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* ===== 1. Roulette 輪盤 ===== */
+        .roulette-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+        }
+        
+        .roulette-wheel {
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            position: relative;
+            margin-bottom: 30px;
+            box-shadow: 0 0 40px var(--orange-glow), inset 0 0 30px rgba(0,0,0,0.5);
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+        }
+        
+        .roulette-segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            left: 50%;
+            top: 50%;
+            transform-origin: 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .roulette-segment span {
+            position: absolute;
+            left: 20%;
+            font-size: 0.75em;
+            font-weight: 600;
+            white-space: nowrap;
+            transform: rotate(90deg);
+            max-width: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .roulette-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--orange), var(--yellow));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            box-shadow: 0 4px 20px var(--orange-glow);
+            z-index: 10;
+        }
+        
+        .roulette-pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid var(--orange);
+            filter: drop-shadow(0 4px 10px var(--orange-glow));
+            z-index: 20;
+        }
+        
+        .roulette-result {
+            text-align: center;
+            padding: 20px;
+            background: var(--bg-elevated);
+            border-radius: 16px;
+            margin-top: 20px;
+            display: none;
+            animation: popIn 0.5s ease;
+        }
+        
+        .roulette-result.show { display: block; }
+        
+        .roulette-result-title {
+            font-size: 0.9em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        
+        .roulette-result-text {
+            font-size: 1.5em;
+            font-weight: 900;
+            color: var(--orange);
+        }
+        
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        /* ===== 2. Chemistry 默契測試 ===== */
+        .player-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .player-tab {
+            flex: 1;
+            padding: 12px;
+            background: var(--bg-elevated);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-soft);
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .player-tab.active {
+            border-color: var(--cyan);
+            color: var(--cyan);
+            background: var(--cyan-glow);
+        }
+        
+        .player-tab.done::after {
+            content: ' ✓';
+            color: var(--green);
+        }
+        
+        .chemistry-question {
+            background: var(--bg-elevated);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        
+        .chemistry-question-title {
+            font-size: 0.85em;
+            color: var(--cyan);
+            margin-bottom: 8px;
+        }
+        
+        .chemistry-question-text {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .chemistry-result {
+            background: var(--bg-elevated);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--cyan);
+        }
+        
+        .chemistry-match {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .chemistry-score {
+            font-size: 3em;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .chemistry-label {
+            font-size: 1.2em;
+            color: var(--text-soft);
+        }
+        
+        /* ===== 3. Price Calculator 物價計算機 ===== */
+        .currency-display {
+            background: linear-gradient(135deg, var(--orange-glow) 0%, var(--yellow-glow) 100%);
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .currency-amount {
+            font-size: 2.5em;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+        
+        .currency-converted {
+            font-size: 1.2em;
+            color: var(--text-soft);
+        }
+        
+        .currency-equivalent {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 16px;
+            text-align: center;
+        }
+        
+        .equivalent-title {
+            font-size: 0.85em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        
+        .equivalent-text {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--yellow);
+        }
+        
+        .currency-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .currency-btn {
+            padding: 12px 8px;
+            background: var(--bg-elevated);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-soft);
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .currency-btn.active {
+            border-color: var(--orange);
+            color: var(--orange);
+            background: var(--orange-glow);
+        }
+        
+        /* ===== 4. Bingo 賓果卡 ===== */
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .bingo-cell {
+            aspect-ratio: 1;
+            background: var(--bg-elevated);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 0.65em;
+            font-weight: 500;
+            padding: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            line-height: 1.2;
+        }
+        
+        .bingo-cell.checked {
+            background: linear-gradient(135deg, var(--pink), var(--purple));
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 4px 15px var(--pink-glow);
+        }
+        
+        .bingo-cell.center {
+            background: linear-gradient(135deg, var(--orange), var(--yellow));
+            border-color: transparent;
+            color: #000;
+            font-weight: 900;
+        }
+        
+        .bingo-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 16px;
+            background: var(--bg-elevated);
+            border-radius: 16px;
+        }
+        
+        .bingo-stat {
+            text-align: center;
+        }
+        
+        .bingo-stat-value {
+            font-size: 2em;
+            font-weight: 900;
+        }
+        
+        .bingo-stat-value.lines { color: var(--pink); }
+        .bingo-stat-value.checks { color: var(--yellow); }
+        
+        .bingo-stat-label {
+            font-size: 0.8em;
+            color: var(--text-muted);
+        }
+        
+        /* ===== 5. Weather 天氣穿搭 ===== */
+        .weather-display {
+            background: linear-gradient(135deg, var(--cyan-glow) 0%, var(--purple) 20%, var(--bg-card) 100%);
+            border-radius: 24px;
+            padding: 30px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .weather-display::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -30%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255,217,61,0.3) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        
+        .weather-location {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .weather-icon {
+            font-size: 4em;
+            margin: 16px 0;
+        }
+        
+        .weather-temp {
+            font-size: 3em;
+            font-weight: 900;
+        }
+        
+        .weather-desc {
+            color: var(--text-soft);
+            margin-top: 8px;
+        }
+        
+        .weather-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .weather-detail {
+            background: var(--bg-card);
+            border-radius: 14px;
+            padding: 14px 10px;
+            text-align: center;
+        }
+        
+        .weather-detail-icon { font-size: 1.3em; margin-bottom: 6px; }
+        .weather-detail-value { font-weight: 700; }
+        .weather-detail-label { font-size: 0.75em; color: var(--text-muted); }
+        
+        .outfit-suggestion {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+        }
+        
+        .outfit-title {
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .outfit-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .outfit-item {
+            padding: 10px 16px;
+            background: var(--bg-elevated);
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        /* ===== 6. Mood 心情溫度計 ===== */
+        .mood-today {
+            background: linear-gradient(135deg, var(--pink-glow) 0%, var(--orange-glow) 100%);
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .mood-date {
+            font-size: 0.9em;
+            color: var(--text-soft);
+            margin-bottom: 16px;
+        }
+        
+        .mood-slider-container {
+            margin-bottom: 20px;
+        }
+        
+        .mood-slider {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            background: linear-gradient(90deg, #ef4444, #f59e0b, #ffd93d, #84cc16, #10b981);
+            border-radius: 10px;
+            outline: none;
+        }
+        
+        .mood-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 30px;
+            height: 30px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .mood-value {
+            font-size: 3em;
+            font-weight: 900;
+            margin: 16px 0;
+        }
+        
+        .mood-emoji {
+            font-size: 2em;
+        }
+        
+        .mood-note {
+            width: 100%;
+            padding: 14px;
+            background: var(--bg-dark);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-bright);
+            font-family: inherit;
+            font-size: 1em;
+            resize: none;
+            margin-top: 16px;
+        }
+        
+        .mood-note:focus {
+            outline: none;
+            border-color: var(--pink);
+        }
+        
+        .mood-chart {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .mood-chart-title {
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .mood-chart-container {
+            height: 150px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 6px;
+            padding-bottom: 30px;
+            position: relative;
+        }
+        
+        .mood-bar {
+            flex: 1;
+            background: linear-gradient(180deg, var(--pink), var(--orange));
+            border-radius: 6px 6px 0 0;
+            min-height: 10px;
+            position: relative;
+            transition: height 0.5s ease;
+        }
+        
+        .mood-bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.65em;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+        
+        .mood-history {
+            margin-top: 20px;
+        }
+        
+        .mood-entry {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-elevated);
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .mood-entry-emoji { font-size: 1.5em; }
+        .mood-entry-info { flex: 1; }
+        .mood-entry-date { font-size: 0.8em; color: var(--text-muted); }
+        .mood-entry-note { font-size: 0.9em; margin-top: 4px; }
+        .mood-entry-score { font-size: 1.3em; font-weight: 900; color: var(--pink); }
+        
+        /* ===== Modal ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            width: 100%;
+            max-width: 500px;
+            max-height: 85vh;
+            background: var(--bg-card);
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+            padding-bottom: calc(24px + env(safe-area-inset-bottom));
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+        
+        .modal-overlay.show .modal {
+            transform: translateY(0);
+        }
+        
+        .modal-handle {
+            width: 40px;
+            height: 4px;
+            background: var(--text-muted);
+            border-radius: 4px;
+            margin: 0 auto 20px;
+        }
+        
+        .modal-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            bottom: calc(var(--nav-height) + 20px);
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-elevated);
+            color: var(--text-bright);
+            padding: 14px 24px;
+            border-radius: 14px;
+            font-size: 0.9em;
+            font-weight: 500;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+            border: 1px solid var(--border);
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        /* ===== Empty State ===== */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+        
+        .empty-icon { font-size: 3em; margin-bottom: 12px; opacity: 0.5; }
+        .empty-title { font-size: 1em; font-weight: 600; color: var(--text-soft); margin-bottom: 6px; }
+        .empty-hint { font-size: 0.85em; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">🧳</div>
+                <span class="logo-text">旅遊達人</span>
+            </div>
+            <button class="header-btn" onclick="showModal('settingsModal')">⚙️</button>
+        </header>
+        
+        <!-- Content -->
+        <main class="content">
+            <!-- 1. 輪盤 -->
+            <div id="roulettePage" class="page active">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon orange">🎰</div>
+                        <div>
+                            <div class="card-title">旅遊輪盤</div>
+                            <div class="card-subtitle">不知道做什麼？轉一下！</div>
+                        </div>
+                    </div>
+                    
+                    <div class="input-row" style="margin-bottom: 12px;">
+                        <input type="text" class="input-field" id="rouletteInput" placeholder="輸入選項，例：吃拉麵">
+                        <button class="input-btn" onclick="addRouletteOption()">+</button>
+                    </div>
+                    
+                    <div class="tag-list" id="rouletteOptions"></div>
+                    
+                    <div class="roulette-container">
+                        <div style="position: relative;">
+                            <div class="roulette-pointer"></div>
+                            <div class="roulette-wheel" id="rouletteWheel"></div>
+                            <div class="roulette-center">🎯</div>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="spinRoulette()" style="margin-top: 20px;">
+                            🎲 轉動輪盤
+                        </button>
+                        
+                        <div class="roulette-result" id="rouletteResult">
+                            <div class="roulette-result-title">🎉 今天就決定是...</div>
+                            <div class="roulette-result-text" id="rouletteResultText"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 2. 默契測試 -->
+            <div id="chemistryPage" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon cyan">💑</div>
+                        <div>
+                            <div class="card-title">旅伴默契測試</div>
+                            <div class="card-subtitle">看看你們有多有默契！</div>
+                        </div>
+                    </div>
+                    
+                    <div class="player-tabs" id="playerTabs">
+                        <button class="player-tab active" onclick="switchPlayer(0)">👤 旅伴 A</button>
+                        <button class="player-tab" onclick="switchPlayer(1)">👤 旅伴 B</button>
+                    </div>
+                    
+                    <div id="chemistryQuestions"></div>
+                    
+                    <div class="btn-row" style="margin-top: 16px;">
+                        <button class="btn btn-secondary" onclick="resetChemistry()">🔄 重新開始</button>
+                        <button class="btn btn-primary" onclick="revealChemistry()">✨ 揭曉結果</button>
+                    </div>
+                    
+                    <div id="chemistryResults" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+            
+            <!-- 3. 物價計算機 -->
+            <div id="pricePage" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon yellow">💱</div>
+                        <div>
+                            <div class="card-title">異國物價感覺器</div>
+                            <div class="card-subtitle">這個價格到底貴不貴？</div>
+                        </div>
+                    </div>
+                    
+                    <div class="currency-grid" id="currencyGrid"></div>
+                    
+                    <div class="input-group">
+                        <input type="number" class="input-field" id="priceInput" placeholder="輸入當地價格" oninput="calculatePrice()" style="font-size: 1.5em; text-align: center;">
+                    </div>
+                    
+                    <div class="currency-display">
+                        <div class="currency-amount" id="priceDisplay">NT$ 0</div>
+                        <div class="currency-converted" id="priceConverted">≈ 0 元台幣</div>
+                        <div class="currency-equivalent" id="priceEquivalent">
+                            <div class="equivalent-title">💡 在台灣大概等於...</div>
+                            <div class="equivalent-text" id="equivalentText">輸入金額看看</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 4. Bingo -->
+            <div id="bingoPage" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon pink">🎯</div>
+                        <div>
+                            <div class="card-title">旅遊 Bingo</div>
+                            <div class="card-subtitle">完成連線得分！</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bingo-grid" id="bingoGrid"></div>
+                    
+                    <div class="bingo-stats">
+                        <div class="bingo-stat">
+                            <div class="bingo-stat-value lines" id="bingoLines">0</div>
+                            <div class="bingo-stat-label">連線數</div>
+                        </div>
+                        <div class="bingo-stat">
+                            <div class="bingo-stat-value checks" id="bingoChecks">0</div>
+                            <div class="bingo-stat-label">完成項目</div>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-row" style="margin-top: 16px;">
+                        <button class="btn btn-secondary" onclick="showModal('bingoCustomModal')">✏️ 自訂項目</button>
+                        <button class="btn btn-primary" onclick="generateBingo()">🔄 重新產生</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 5. 天氣穿搭 -->
+            <div id="weatherPage" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon cyan">👕</div>
+                        <div>
+                            <div class="card-title">天氣穿搭建議</div>
+                            <div class="card-subtitle">今天該穿什麼？</div>
+                        </div>
+                    </div>
+                    
+                    <div class="input-row" style="margin-bottom: 16px;">
+                        <input type="text" class="input-field" id="weatherCity" placeholder="輸入城市，例：東京、首爾">
+                        <button class="input-btn" onclick="getWeather()">🔍</button>
+                    </div>
+                    
+                    <div id="weatherDisplay">
+                        <div class="empty-state">
+                            <div class="empty-icon">🌤️</div>
+                            <div class="empty-title">輸入城市查詢天氣</div>
+                            <div class="empty-hint">我們會給你穿搭建議！</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 6. 心情溫度計 -->
+            <div id="moodPage" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon pink">🌡️</div>
+                        <div>
+                            <div class="card-title">心情溫度計</div>
+                            <div class="card-subtitle">記錄今天的心情</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mood-today">
+                        <div class="mood-date" id="moodDate"></div>
+                        <div class="mood-emoji" id="moodEmoji">😊</div>
+                        <div class="mood-value" id="moodValue">7</div>
+                        <div class="mood-slider-container">
+                            <input type="range" class="mood-slider" id="moodSlider" min="1" max="10" value="7" oninput="updateMoodDisplay()">
+                        </div>
+                        <textarea class="mood-note" id="moodNote" placeholder="今天發生了什麼？" rows="2"></textarea>
+                        <button class="btn btn-primary" style="margin-top: 16px;" onclick="saveMood()">💾 記錄今天心情</button>
+                    </div>
+                    
+                    <div class="mood-chart">
+                        <div class="mood-chart-title">📊 心情曲線</div>
+                        <div class="mood-chart-container" id="moodChart"></div>
+                    </div>
+                    
+                    <div class="mood-history" id="moodHistory"></div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Navigation -->
+        <nav class="nav">
+            <button class="nav-item active" data-page="roulettePage">
+                <span class="nav-icon">🎰</span>
+                <span class="nav-label">輪盤</span>
+            </button>
+            <button class="nav-item" data-page="chemistryPage">
+                <span class="nav-icon">💑</span>
+                <span class="nav-label">默契</span>
+            </button>
+            <button class="nav-item" data-page="pricePage">
+                <span class="nav-icon">💱</span>
+                <span class="nav-label">物價</span>
+            </button>
+            <button class="nav-item" data-page="bingoPage">
+                <span class="nav-icon">🎯</span>
+                <span class="nav-label">Bingo</span>
+            </button>
+            <button class="nav-item" data-page="weatherPage">
+                <span class="nav-icon">👕</span>
+                <span class="nav-label">穿搭</span>
+            </button>
+            <button class="nav-item" data-page="moodPage">
+                <span class="nav-icon">🌡️</span>
+                <span class="nav-label">心情</span>
+            </button>
+        </nav>
+    </div>
+    
+    <!-- Bingo 自訂彈窗 -->
+    <div class="modal-overlay" id="bingoCustomModal">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <h3 class="modal-title">✏️ 自訂 Bingo 項目</h3>
+            <p style="font-size: 0.9em; color: var(--text-muted); margin-bottom: 16px;">每行一個項目，至少需要 24 個</p>
+            <textarea class="input-field" id="bingoCustomItems" rows="10" placeholder="看到神社&#10;吃到拉麵&#10;搭地鐵&#10;看到穿和服的人&#10;..."></textarea>
+            <div class="btn-row" style="margin-top: 16px;">
+                <button class="btn btn-secondary" onclick="closeModal('bingoCustomModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveBingoItems()">儲存</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 設定彈窗 -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <h3 class="modal-title">⚙️ 設定</h3>
+            <div class="btn-row">
+                <button class="btn btn-secondary" onclick="exportAllData()">📤 匯出</button>
+                <button class="btn btn-secondary" onclick="importAllData()">📥 匯入</button>
+            </div>
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+            <button class="btn btn-outline" style="margin-top: 16px;" onclick="clearAllData()">🗑️ 清除所有資料</button>
+        </div>
+    </div>
+    
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        // ============================================
+        // 資料結構
+        // ============================================
+        const STORAGE_KEY = 'travel_master_v1';
+        
+        let appData = {
+            roulette: { options: ['吃拉麵', '逛神社', '買藥妝', '喝咖啡', '拍照打卡', '隨便走走'] },
+            chemistry: { 
+                questions: [
+                    '今天最想去哪裡？',
+                    '午餐想吃什麼？',
+                    '最想買什麼紀念品？',
+                    '晚上想做什麼活動？'
+                ],
+                answers: [[], []]
+            },
+            price: { currency: 'JPY' },
+            bingo: { 
+                items: [],
+                grid: [],
+                checked: []
+            },
+            mood: { records: [] }
+        };
+        
+        // 幣別匯率（對台幣）
+        const CURRENCIES = {
+            'JPY': { symbol: '¥', rate: 0.22, name: '日圓' },
+            'KRW': { symbol: '₩', rate: 0.024, name: '韓元' },
+            'USD': { symbol: '$', rate: 32, name: '美元' },
+            'EUR': { symbol: '€', rate: 35, name: '歐元' },
+            'THB': { symbol: '฿', rate: 0.95, name: '泰銖' },
+            'VND': { symbol: '₫', rate: 0.0013, name: '越南盾' },
+            'CNY': { symbol: '¥', rate: 4.5, name: '人民幣' },
+            'HKD': { symbol: 'HK$', rate: 4.1, name: '港幣' }
+        };
+        
+        // 台灣物價參考
+        const TW_PRICES = [
+            { name: '一杯珍奶', price: 55 },
+            { name: '一個便當', price: 100 },
+            { name: '一杯超商咖啡', price: 45 },
+            { name: '一份早餐', price: 60 },
+            { name: '捷運單程票', price: 25 },
+            { name: '一碗牛肉麵', price: 150 },
+            { name: '一份雞排', price: 70 },
+            { name: '電影票', price: 300 },
+            { name: '一件T恤', price: 500 },
+            { name: '一雙球鞋', price: 2500 }
+        ];
+        
+        // Bingo 預設項目
+        const DEFAULT_BINGO = [
+            '看到神社', '吃到拉麵', '搭地鐵', '看到穿和服的人', '買到藥妝',
+            '喝到抹茶', '看到富士山', '吃到壽司', '逛便利商店', '看到鳥居',
+            '吃到章魚燒', '搭新幹線', '看到櫻花/楓葉', '買到扭蛋', '吃到烏龍麵',
+            '看到貓', '喝到清酒', '吃到和牛', '逛百貨公司', '看到溫泉',
+            '吃到可麗餅', '看到東京鐵塔', '買到御守', '吃到大阪燒'
+        ];
+        
+        // ============================================
+        // 初始化
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            initNavigation();
+            initModals();
+            initRoulette();
+            initChemistry();
+            initPrice();
+            initBingo();
+            initMood();
+        });
+        
+        function loadData() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) appData = { ...appData, ...JSON.parse(saved) };
+            } catch (e) {}
+        }
+        
+        function saveData() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+            } catch (e) {}
+        }
+        
+        function initNavigation() {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                    item.classList.add('active');
+                    document.getElementById(item.dataset.page).classList.add('active');
+                });
+            });
+        }
+        
+        function initModals() {
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) overlay.classList.remove('show');
+                });
+            });
+        }
+        
+        function showModal(id) { document.getElementById(id).classList.add('show'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+        
+        // ============================================
+        // 1. 輪盤
+        // ============================================
+        function initRoulette() {
+            renderRouletteOptions();
+            renderRouletteWheel();
+        }
+        
+        function renderRouletteOptions() {
+            const container = document.getElementById('rouletteOptions');
+            container.innerHTML = appData.roulette.options.map((opt, i) => `
+                <div class="tag">
+                    ${opt}
+                    <button class="tag-remove" onclick="removeRouletteOption(${i})">✕</button>
+                </div>
+            `).join('');
+        }
+        
+        function renderRouletteWheel() {
+            const wheel = document.getElementById('rouletteWheel');
+            const options = appData.roulette.options;
+            const n = options.length;
+            
+            if (n === 0) {
+                wheel.style.background = 'var(--bg-elevated)';
+                wheel.innerHTML = '';
+                return;
+            }
+            
+            const colors = ['#ff6b35', '#ffd93d', '#4ecdc4', '#ff6b9d', '#a855f7', '#10b981', '#3b82f6', '#f59e0b'];
+            const angle = 360 / n;
+            
+            let gradientParts = [];
+            for (let i = 0; i < n; i++) {
+                const start = i * angle;
+                const end = (i + 1) * angle;
+                gradientParts.push(`${colors[i % colors.length]} ${start}deg ${end}deg`);
+            }
+            
+            wheel.style.background = `conic-gradient(${gradientParts.join(', ')})`;
+            wheel.innerHTML = options.map((opt, i) => {
+                const rotation = i * angle + angle / 2;
+                return `<div class="roulette-segment" style="transform: rotate(${rotation - 90}deg) translateX(-50%) translateY(-50%);"><span>${opt}</span></div>`;
+            }).join('');
+        }
+        
+        function addRouletteOption() {
+            const input = document.getElementById('rouletteInput');
+            const value = input.value.trim();
+            if (!value) return;
+            
+            appData.roulette.options.push(value);
+            saveData();
+            input.value = '';
+            renderRouletteOptions();
+            renderRouletteWheel();
+        }
+        
+        function removeRouletteOption(index) {
+            appData.roulette.options.splice(index, 1);
+            saveData();
+            renderRouletteOptions();
+            renderRouletteWheel();
+        }
+        
+        let isSpinning = false;
+        function spinRoulette() {
+            if (isSpinning || appData.roulette.options.length === 0) return;
+            isSpinning = true;
+            
+            const wheel = document.getElementById('rouletteWheel');
+            const result = document.getElementById('rouletteResult');
+            const resultText = document.getElementById('rouletteResultText');
+            
+            result.classList.remove('show');
+            
+            const options = appData.roulette.options;
+            const n = options.length;
+            const angle = 360 / n;
+            const randomIndex = Math.floor(Math.random() * n);
+            const extraSpins = 5 + Math.floor(Math.random() * 3);
+            const targetAngle = extraSpins * 360 + (360 - randomIndex * angle - angle / 2);
+            
+            wheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+            wheel.style.transform = `rotate(${targetAngle}deg)`;
+            
+            setTimeout(() => {
+                resultText.textContent = options[randomIndex];
+                result.classList.add('show');
+                isSpinning = false;
+                
+                // Reset for next spin
+                setTimeout(() => {
+                    wheel.style.transition = 'none';
+                    wheel.style.transform = `rotate(${targetAngle % 360}deg)`;
+                }, 100);
+            }, 4000);
+        }
+        
+        // ============================================
+        // 2. 默契測試
+        // ============================================
+        let currentPlayer = 0;
+        
+        function initChemistry() {
+            renderChemistryQuestions();
+        }
+        
+        function renderChemistryQuestions() {
+            const container = document.getElementById('chemistryQuestions');
+            const answers = appData.chemistry.answers[currentPlayer] || [];
+            
+            container.innerHTML = appData.chemistry.questions.map((q, i) => `
+                <div class="chemistry-question">
+                    <div class="chemistry-question-title">問題 ${i + 1}</div>
+                    <div class="chemistry-question-text">${q}</div>
+                    <input type="text" class="input-field" 
+                        placeholder="你的答案..." 
+                        value="${answers[i] || ''}"
+                        oninput="saveChemistryAnswer(${i}, this.value)"
+                        ${answers[i] ? 'type="password"' : ''}>
+                </div>
+            `).join('');
+        }
+        
+        function switchPlayer(index) {
+            currentPlayer = index;
+            document.querySelectorAll('.player-tab').forEach((tab, i) => {
+                tab.classList.toggle('active', i === index);
+                if (appData.chemistry.answers[i]?.length === appData.chemistry.questions.length &&
+                    appData.chemistry.answers[i].every(a => a)) {
+                    tab.classList.add('done');
+                } else {
+                    tab.classList.remove('done');
+                }
+            });
+            renderChemistryQuestions();
+        }
+        
+        function saveChemistryAnswer(index, value) {
+            if (!appData.chemistry.answers[currentPlayer]) {
+                appData.chemistry.answers[currentPlayer] = [];
+            }
+            appData.chemistry.answers[currentPlayer][index] = value;
+            saveData();
+            
+            // Update tab status
+            switchPlayer(currentPlayer);
+        }
+        
+        function revealChemistry() {
+            const a1 = appData.chemistry.answers[0] || [];
+            const a2 = appData.chemistry.answers[1] || [];
+            
+            if (a1.length < appData.chemistry.questions.length || a2.length < appData.chemistry.questions.length) {
+                showToast('⚠️ 兩位旅伴都要回答完才能揭曉！');
+                return;
+            }
+            
+            let matches = 0;
+            const results = appData.chemistry.questions.map((q, i) => {
+                const match = a1[i]?.toLowerCase().trim() === a2[i]?.toLowerCase().trim();
+                if (match) matches++;
+                return { question: q, a1: a1[i], a2: a2[i], match };
+            });
+            
+            const score = Math.round((matches / appData.chemistry.questions.length) * 100);
+            
+            const container = document.getElementById('chemistryResults');
+            container.innerHTML = `
+                <div class="chemistry-match">
+                    <div>
+                        <div class="chemistry-score">${score}%</div>
+                        <div class="chemistry-label">默契指數</div>
+                    </div>
+                </div>
+                ${results.map(r => `
+                    <div class="chemistry-result" style="border-color: ${r.match ? 'var(--green)' : 'var(--red)'}">
+                        <div style="font-weight: 600; margin-bottom: 8px;">${r.question}</div>
+                        <div style="display: flex; gap: 20px;">
+                            <div><span style="color: var(--text-muted);">A:</span> ${r.a1}</div>
+                            <div><span style="color: var(--text-muted);">B:</span> ${r.a2}</div>
+                        </div>
+                        <div style="margin-top: 8px; color: ${r.match ? 'var(--green)' : 'var(--red)'}">
+                            ${r.match ? '✓ 一致！' : '✗ 不同'}
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+        
+        function resetChemistry() {
+            appData.chemistry.answers = [[], []];
+            saveData();
+            document.getElementById('chemistryResults').innerHTML = '';
+            document.querySelectorAll('.player-tab').forEach(t => t.classList.remove('done'));
+            switchPlayer(0);
+            showToast('已重置！');
+        }
+        
+        // ============================================
+        // 3. 物價計算機
+        // ============================================
+        function initPrice() {
+            const grid = document.getElementById('currencyGrid');
+            grid.innerHTML = Object.entries(CURRENCIES).map(([code, info]) => `
+                <button class="currency-btn ${appData.price.currency === code ? 'active' : ''}" 
+                    onclick="selectCurrency('${code}')">
+                    ${info.symbol} ${info.name}
+                </button>
+            `).join('');
+        }
+        
+        function selectCurrency(code) {
+            appData.price.currency = code;
+            saveData();
+            document.querySelectorAll('.currency-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.includes(CURRENCIES[code].name));
+            });
+            calculatePrice();
+        }
+        
+        function calculatePrice() {
+            const input = document.getElementById('priceInput').value;
+            const amount = parseFloat(input) || 0;
+            const currency = CURRENCIES[appData.price.currency];
+            const twdAmount = Math.round(amount * currency.rate);
+            
+            document.getElementById('priceDisplay').textContent = `${currency.symbol} ${amount.toLocaleString()}`;
+            document.getElementById('priceConverted').textContent = `≈ NT$ ${twdAmount.toLocaleString()}`;
+            
+            // 找最接近的台灣物價
+            if (twdAmount > 0) {
+                let equivalent = [];
+                let remaining = twdAmount;
+                
+                const sorted = [...TW_PRICES].sort((a, b) => b.price - a.price);
+                for (const item of sorted) {
+                    const count = Math.floor(remaining / item.price);
+                    if (count > 0) {
+                        equivalent.push(`${count}${item.name}`);
+                        remaining -= count * item.price;
+                        if (equivalent.length >= 2) break;
+                    }
+                }
+                
+                if (equivalent.length === 0) {
+                    const cheapest = TW_PRICES.reduce((a, b) => a.price < b.price ? a : b);
+                    equivalent.push(`不到一${cheapest.name}`);
+                }
+                
+                document.getElementById('equivalentText').textContent = equivalent.join(' + ');
+            } else {
+                document.getElementById('equivalentText').textContent = '輸入金額看看';
+            }
+        }
+        
+        // ============================================
+        // 4. Bingo
+        // ============================================
+        function initBingo() {
+            if (!appData.bingo.items || appData.bingo.items.length < 24) {
+                appData.bingo.items = [...DEFAULT_BINGO];
+            }
+            if (!appData.bingo.grid || appData.bingo.grid.length === 0) {
+                generateBingo();
+            } else {
+                renderBingo();
+            }
+            
+            document.getElementById('bingoCustomItems').value = appData.bingo.items.join('\n');
+        }
+        
+        function generateBingo() {
+            const items = [...appData.bingo.items];
+            const shuffled = items.sort(() => Math.random() - 0.5).slice(0, 24);
+            
+            // Insert center
+            shuffled.splice(12, 0, 'FREE');
+            
+            appData.bingo.grid = shuffled;
+            appData.bingo.checked = [12]; // Center is always checked
+            saveData();
+            renderBingo();
+        }
+        
+        function renderBingo() {
+            const grid = document.getElementById('bingoGrid');
+            grid.innerHTML = appData.bingo.grid.map((item, i) => `
+                <div class="bingo-cell ${appData.bingo.checked.includes(i) ? 'checked' : ''} ${i === 12 ? 'center' : ''}"
+                    onclick="toggleBingoCell(${i})">
+                    ${item}
+                </div>
+            `).join('');
+            
+            updateBingoStats();
+        }
+        
+        function toggleBingoCell(index) {
+            if (index === 12) return; // Center always checked
+            
+            const idx = appData.bingo.checked.indexOf(index);
+            if (idx > -1) {
+                appData.bingo.checked.splice(idx, 1);
+            } else {
+                appData.bingo.checked.push(index);
+            }
+            saveData();
+            renderBingo();
+        }
+        
+        function updateBingoStats() {
+            const checked = appData.bingo.checked;
+            let lines = 0;
+            
+            // Check rows
+            for (let r = 0; r < 5; r++) {
+                if ([0,1,2,3,4].every(c => checked.includes(r * 5 + c))) lines++;
+            }
+            
+            // Check columns
+            for (let c = 0; c < 5; c++) {
+                if ([0,1,2,3,4].every(r => checked.includes(r * 5 + c))) lines++;
+            }
+            
+            // Check diagonals
+            if ([0,6,12,18,24].every(i => checked.includes(i))) lines++;
+            if ([4,8,12,16,20].every(i => checked.includes(i))) lines++;
+            
+            document.getElementById('bingoLines').textContent = lines;
+            document.getElementById('bingoChecks').textContent = checked.length - 1; // Exclude center
+        }
+        
+        function saveBingoItems() {
+            const text = document.getElementById('bingoCustomItems').value;
+            const items = text.split('\n').map(s => s.trim()).filter(s => s);
+            
+            if (items.length < 24) {
+                showToast('⚠️ 至少需要 24 個項目！');
+                return;
+            }
+            
+            appData.bingo.items = items;
+            saveData();
+            generateBingo();
+            closeModal('bingoCustomModal');
+            showToast('✅ 已儲存並重新產生！');
+        }
+        
+        // ============================================
+        // 5. 天氣穿搭
+        // ============================================
+        async function getWeather() {
+            const city = document.getElementById('weatherCity').value.trim();
+            if (!city) {
+                showToast('請輸入城市名稱');
+                return;
+            }
+            
+            // 模擬天氣資料（實際應用可接 API）
+            const weathers = [
+                { icon: '☀️', desc: '晴天', temp: 28, humidity: 45, wind: 3, rain: 0 },
+                { icon: '⛅', desc: '多雲', temp: 22, humidity: 60, wind: 5, rain: 10 },
+                { icon: '🌧️', desc: '小雨', temp: 18, humidity: 80, wind: 8, rain: 70 },
+                { icon: '❄️', desc: '寒冷', temp: 5, humidity: 50, wind: 10, rain: 20 },
+                { icon: '🌤️', desc: '晴時多雲', temp: 25, humidity: 55, wind: 4, rain: 5 }
+            ];
+            
+            const weather = weathers[Math.floor(Math.random() * weathers.length)];
+            const outfit = getOutfitSuggestion(weather.temp, weather.rain);
+            
+            document.getElementById('weatherDisplay').innerHTML = `
+                <div class="weather-display">
+                    <div class="weather-location">📍 ${city}</div>
+                    <div class="weather-icon">${weather.icon}</div>
+                    <div class="weather-temp">${weather.temp}°C</div>
+                    <div class="weather-desc">${weather.desc}</div>
+                </div>
+                
+                <div class="weather-details">
+                    <div class="weather-detail">
+                        <div class="weather-detail-icon">💧</div>
+                        <div class="weather-detail-value">${weather.humidity}%</div>
+                        <div class="weather-detail-label">濕度</div>
+                    </div>
+                    <div class="weather-detail">
+                        <div class="weather-detail-icon">💨</div>
+                        <div class="weather-detail-value">${weather.wind} m/s</div>
+                        <div class="weather-detail-label">風速</div>
+                    </div>
+                    <div class="weather-detail">
+                        <div class="weather-detail-icon">🌧️</div>
+                        <div class="weather-detail-value">${weather.rain}%</div>
+                        <div class="weather-detail-label">降雨機率</div>
+                    </div>
+                </div>
+                
+                <div class="outfit-suggestion">
+                    <div class="outfit-title">👕 穿搭建議</div>
+                    <div class="outfit-items">
+                        ${outfit.map(item => `<div class="outfit-item">${item}</div>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function getOutfitSuggestion(temp, rain) {
+            const items = [];
+            
+            if (temp >= 28) {
+                items.push('👕 短袖', '🩳 短褲', '🧢 帽子', '🕶️ 太陽眼鏡');
+            } else if (temp >= 22) {
+                items.push('👕 薄長袖', '👖 長褲', '🧥 薄外套備用');
+            } else if (temp >= 15) {
+                items.push('🧥 外套', '👖 長褲', '👕 長袖上衣');
+            } else if (temp >= 8) {
+                items.push('🧥 厚外套', '🧣 圍巾', '👖 長褲', '🧤 手套備用');
+            } else {
+                items.push('🧥 羽絨衣', '🧣 圍巾', '🧤 手套', '🎿 保暖內搭');
+            }
+            
+            if (rain > 50) {
+                items.push('☔ 雨傘必備');
+            } else if (rain > 20) {
+                items.push('🌂 帶把傘');
+            }
+            
+            return items;
+        }
+        
+        // ============================================
+        // 6. 心情溫度計
+        // ============================================
+        function initMood() {
+            const today = new Date();
+            const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+            document.getElementById('moodDate').textContent = 
+                `${today.getMonth() + 1}/${today.getDate()} (${weekdays[today.getDay()]})`;
+            
+            updateMoodDisplay();
+            renderMoodChart();
+            renderMoodHistory();
+        }
+        
+        function updateMoodDisplay() {
+            const value = parseInt(document.getElementById('moodSlider').value);
+            document.getElementById('moodValue').textContent = value;
+            
+            const emojis = ['😢', '😞', '😔', '😐', '🙂', '😊', '😄', '😁', '🤩', '🥳'];
+            document.getElementById('moodEmoji').textContent = emojis[value - 1];
+        }
+        
+        function saveMood() {
+            const value = parseInt(document.getElementById('moodSlider').value);
+            const note = document.getElementById('moodNote').value.trim();
+            const today = new Date().toISOString().split('T')[0];
+            
+            // Check if already recorded today
+            const existingIndex = appData.mood.records.findIndex(r => r.date === today);
+            
+            const record = {
+                date: today,
+                value,
+                note,
+                timestamp: new Date().toISOString()
+            };
+            
+            if (existingIndex > -1) {
+                appData.mood.records[existingIndex] = record;
+            } else {
+                appData.mood.records.push(record);
+            }
+            
+            // Keep only last 30 days
+            appData.mood.records = appData.mood.records
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .slice(0, 30);
+            
+            saveData();
+            document.getElementById('moodNote').value = '';
+            renderMoodChart();
+            renderMoodHistory();
+            showToast('💾 已記錄今日心情！');
+        }
+        
+        function renderMoodChart() {
+            const container = document.getElementById('moodChart');
+            const records = appData.mood.records
+                .sort((a, b) => new Date(a.date) - new Date(b.date))
+                .slice(-7);
+            
+            if (records.length === 0) {
+                container.innerHTML = '<div class="mood-chart-title">📊 心情曲線</div><div style="text-align:center;color:var(--text-muted);padding:30px;">還沒有記錄</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="mood-chart-title">📊 最近 7 天心情曲線</div>
+                <div class="mood-chart-container">
+                    ${records.map(r => {
+                        const date = new Date(r.date);
+                        return `
+                            <div class="mood-bar" style="height: ${r.value * 10}%">
+                                <div class="mood-bar-label">${date.getMonth()+1}/${date.getDate()}</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+        
+        function renderMoodHistory() {
+            const container = document.getElementById('moodHistory');
+            const records = appData.mood.records
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .slice(0, 10);
+            
+            if (records.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            const emojis = ['😢', '😞', '😔', '😐', '🙂', '😊', '😄', '😁', '🤩', '🥳'];
+            const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+            
+            container.innerHTML = records.map(r => {
+                const date = new Date(r.date);
+                return `
+                    <div class="mood-entry">
+                        <div class="mood-entry-emoji">${emojis[r.value - 1]}</div>
+                        <div class="mood-entry-info">
+                            <div class="mood-entry-date">${date.getMonth()+1}/${date.getDate()} (${weekdays[date.getDay()]})</div>
+                            ${r.note ? `<div class="mood-entry-note">${r.note}</div>` : ''}
+                        </div>
+                        <div class="mood-entry-score">${r.value}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // ============================================
+        // 設定功能
+        // ============================================
+        function exportAllData() {
+            const dataStr = JSON.stringify(appData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `旅遊達人_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('📤 已匯出資料');
+        }
+        
+        function importAllData() {
+            document.getElementById('importFile').click();
+        }
+        
+        function handleImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    appData = { ...appData, ...imported };
+                    saveData();
+                    location.reload();
+                } catch (err) {
+                    showToast('⚠️ 匯入失敗，檔案格式錯誤');
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        function clearAllData() {
+            if (!confirm('確定清除所有資料？')) return;
+            localStorage.removeItem(STORAGE_KEY);
+            location.reload();
+        }
+        
+        // Enter key support
+        document.getElementById('rouletteInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') addRouletteOption();
+        });
+        
+        document.getElementById('weatherCity').addEventListener('keypress', e => {
+            if (e.key === 'Enter') getWeather();
+        });
+    </script>
+</body>
+</html>
